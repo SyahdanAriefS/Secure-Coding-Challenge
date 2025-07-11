@@ -38,9 +38,14 @@ def dashboard():
 @app.route('/sql_injection', methods=['GET', 'POST'])
 def sql_injection():
     message = ''
+    current_query = ''
+    
     if request.method == 'POST':
-        message = "Login berhasil!" if request.form['username'] == "admin' --" else "Login gagal!"
-    return render_template('sql_injection.html', message=message)
+        username = request.form['username']
+        password = request.form['password']
+        message, current_query = config.simulate_sql_injection_login(username, password)
+    
+    return render_template('sql_injection.html', message=message, current_query=current_query)
 
 @app.route('/xss', methods=['GET', 'POST'])
 def xss():
@@ -115,6 +120,10 @@ def logout():
 def apply_csp(response):
     response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';"
     return response
+
+@app.route('/get_scores')
+def serve_scores():
+    return jsonify(get_scores())
 
 if __name__ == '__main__':
     init_db()

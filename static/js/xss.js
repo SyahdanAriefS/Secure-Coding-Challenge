@@ -123,7 +123,7 @@ function showTab(event, targetId) {
 }
 
         window.onload = function () {
-    updateDOM();
+
 
     const cookieDemo = document.getElementById('cookie-demo');
     if (cookieDemo) {
@@ -136,6 +136,8 @@ function showTab(event, targetId) {
     document.getElementById('search-btn')?.addEventListener('click', performSearch);
     document.getElementById('safe-search-btn')?.addEventListener('click', SafeSearch);
     document.getElementById('dom-btn')?.addEventListener('click', updateDOM);
+    document.getElementById('dom-safe-btn')?.addEventListener('click', updateDOMSafe);
+
 
     document.querySelectorAll('.tab').forEach(btn => {
         btn.addEventListener('click', event => {
@@ -147,8 +149,7 @@ function showTab(event, targetId) {
     document.querySelectorAll('.test-stored-payload').forEach(btn => {
         btn.addEventListener('click', () => {
             document.getElementById('comment-name').value = btn.dataset.name;
-            document.getElementById('comment-text').value = btn.dataset.comment;
-            addComment();
+            document.getElementById('comment-text').value = btn.dataset.comment || btn.dataset.payload;
         });
     });
 

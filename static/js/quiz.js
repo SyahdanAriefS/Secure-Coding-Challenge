@@ -194,14 +194,25 @@ function confirmAddToScoreboard() {
 }
 
 function loadScoreboard() {
-    document.getElementById('loading').style.display = 'block';
-    document.getElementById('leaderboard').style.display = 'none';
+    const loading = document.getElementById('loading');
+    const leaderboard = document.getElementById('leaderboard');
 
-    setTimeout(() => {
-        displayScoreboard();
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('leaderboard').style.display = 'block';
-    }, 800);
+    loading.style.display = 'block';
+    leaderboard.style.display = 'none';
+
+    fetch('/get_scores')
+        .then(res => res.json())
+        .then(data => {
+            window.scoreboardData = data;
+            displayScoreboard();
+            loading.style.display = 'none';
+            leaderboard.style.display = 'block';
+        })
+        .catch(err => {
+            console.error("Gagal load scoreboard:", err);
+            loading.style.display = 'none';
+            leaderboard.style.display = 'block';
+        });
 }
 
 function clearScoreboard() {

@@ -169,3 +169,24 @@ file_contents = {
     "php://filter/convert.base64-encode/resource=config.php": "PD9waHAKLy8gRGF0YWJhc2UgY29uZmlndXJhdGlvbg..."
 }
 
+def simulate_sql_injection_login(username, password):
+    current_query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'"
+
+    injection_signatures = [
+        "OR '1'='1",
+        "' OR '1'='1",
+        "' OR '1'='1' /*",
+        "'--",
+        "' --",
+        "--",
+        "/*",
+        "UNION"
+    ]
+
+    if any(payload in username.upper() for payload in injection_signatures) or \
+       any(payload in password.upper() for payload in injection_signatures):
+        message = "Login berhasil! (via SQL Injection)"
+    else:
+        message = "Login gagal!"
+
+    return message, current_query

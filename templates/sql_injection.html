@@ -38,6 +38,13 @@
                 <button type="submit" class="btn">Test Login</button>
             </form>
 
+            {% if current_query %}
+            <div class="query-display">
+                <strong>Query yang dijalankan:</strong><br>
+                <code>{{ current_query }}</code>
+            </div>
+            {% endif %}
+
             {% if message %}
             <div class="message {% if 'berhasil' in message.lower() %}success{% else %}error{% endif %}">
                 {{ message }}

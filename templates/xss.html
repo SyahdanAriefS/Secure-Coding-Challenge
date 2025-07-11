@@ -91,7 +91,7 @@
                     <div class="example-item">
                         <h4>{{ loop.index }}. {{ item.title }}</h4>
                         <div class="payload">{{ item.comment|e }}</div>
-                        <button class="btn test-stored-payload" data-payload="{{ item.payload|e }}">
+                        <button class="btn test-stored-payload" data-name="{{ item.name }}" data-comment="{{ item.comment }}">
                             Test Payload
                         </button>
                     </div>
@@ -114,7 +114,7 @@
                         <input type="text" id="url-param" placeholder="name=Guest" value="name=Guest">
                     </div>
                     <button type="button" class="btn" id="dom-btn">Update DOM (Vulnerable)</button>
-                    <button type="button" class="btn btn-secondary" onclick="updateDOMSafe()">Update DOM (Safe)</button>
+                    <button type="button" class="btn btn-secondary" id="dom-safe-btn">Update DOM (Safe)</button>
                 </form>
 
                 <div class="xss-demo-area">
