@@ -1,0 +1,12 @@
+    window.quizStartTime = new Date("{{ quiz_start }}");
+    window.serverNow = new Date("{{ server_now }}");
+    window.quizAllowed = {{ 'true' if quiz_allowed else 'false' }};
+    window.answers = {{ answers | tojson | safe }};
+    window.explanations = {{ explanations | tojson | safe }};
+    {% if quiz_done %}
+    window.scoreboardData = {{ scores | tojson | safe }};
+    {% else %}
+    window.scoreboardData = [];
+    {% endif %}
+    window.quizAnswers = {{ answers | tojson }};
+    window.explanations = {{ explanations | tojson }};

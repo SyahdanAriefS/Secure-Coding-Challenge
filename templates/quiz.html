@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTF Secure Coding Quiz</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='quiz.css') }}">
+    <script src="{{ url_for('static', filename='js/quiz.js') }}"></script>
+    <script src="{{ url_for('serve_config') }}"></script>
+
+</head>
+<body>
+    <div id="countdown" class="countdown-banner">
+        Waktu tersisa akan muncul di sini...
+    </div>
+    <div class="quiz-timer-fixed" id="quiz-timer">
+        ⏳ Waktu tersisa: <span id="quizTime">30:00</span>
+    </div>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ CTF Secure Coding Quiz</h1>
+            <p>Test pengetahuan Anda tentang keamanan aplikasi web</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="tab-btn" id="quizTabBtn" data-tab="quiz"
+                {% if not quiz_allowed or quiz_done %}disabled{% endif %}
+                {% if not quiz_allowed %}title="Quiz belum dimulai"{% endif %}>
+            📝 Quiz
+        </button>
+
+        <button class="tab-btn" id="scoreboardTabBtn" data-tab="scoreboard">
+            🏆 Scoreboard
+        </button>
+    </div>
+
+        <div id="quiz" class="tab-content active">
+            <div class="quiz-container">
+                <form id="quizForm">
+    {% for q in questions %}
+    <div class="question-card">
+        <div class="question-header">
+            <div class="question-number">{{ loop.index }}</div>
+            <div class="difficulty-badge {{ q.difficulty|lower }}">{{ q.difficulty }}</div>
+        </div>
+        <div class="vulnerability-type">{{ q.type }}</div>
+        <h3 class="question-title">{{ q.title }}</h3>
+        {% if q.code %}
+        <div class="code-block">
+            <pre>{{ q.code }}</pre>
+        </div>
+        {% endif %}
+        <p><strong>Pertanyaan:</strong> {{ q.question }}</p>
+        
+        <div class="options">
+            {% for opt in q.options %}
+            <label class="option">
+                <input type="radio" name="q{{ q.number }}" value="{{ 'abcd'[loop.index0] }}">
+                <span class="option-text"><code>{{ opt }}</code></span>
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <button type="submit" class="submit-btn">🚀 Submit Jawaban</button>
+</form>
+
+                <div id="scoreDisplay" class="score-display">
+                    <input type="hidden" id="participantName" value="{{ user }}">
+                    <h2>🎉 Hasil Quiz</h2>
+                    <p id="finalScore"></p>
+                    <p id="feedback"></p>
+                    <button id="addToScoreboardBtn" class="submit-btn">📊 Tambahkan ke Scoreboard</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="scoreboard" class="tab-content">
+            <div class="scoreboard">
+                <h2 class="scoreboard-title">🏆 Hall of Fame</h2>
+                <button id="backToDashboardBtn" class="control-btn">🔙 Kembali ke Dashboard</button>
+                
+                <div class="controls">
+                    <button id="refreshScoreboardBtn" class="control-btn">🔄 Refresh</button>
+                    <button id="clearScoreboardBtn" class="control-btn">🗑️ Clear All</button>
+                </div>
+                
+                <div id="loading" class="loading" style="display: none;">
+                    Loading scoreboard data...
+                </div>
+                
+                <div id="leaderboard" class="leaderboard">
+                </div>
+
+                <div class="stats">
+                    <h3>📊 Quiz Statistics</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number" id="totalParticipants">0</div>
+                            <div class="stat-label">Total Peserta</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="averageScore">0%</div>
+                            <div class="stat-label">Rata-rata Skor</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="perfectScores">0</div>
+                            <div class="stat-label">Perfect Score</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="totalQuestions">20</div>
+                            <div class="stat-label">Jumlah Soal</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </body>
+</html>

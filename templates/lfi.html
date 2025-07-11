@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LFI Demo - Security Education</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='lfi.css') }}">
+    <script src="{{ url_for('static', filename='js/lfi.js') }}"></script>
+</head>
+<body>
+    <div class="container">
+        <a href="/dashboard" class="back-btn">← Kembali ke Dashboard</a>
+        
+        <div class="header">
+            <h1>📁 Local File Inclusion (LFI) Demo</h1>
+            <p>Pelajari bagaimana LFI bekerja dan cara mencegahnya</p>
+        </div>
+
+        <div class="demo-card">
+            <div class="warning-box">
+                <strong>⚠️ Peringatan:</strong> Ini adalah lingkungan edukasi yang aman. 
+                Jangan pernah mencoba teknik ini pada sistem yang tidak Anda miliki!
+            </div>
+
+            <h2>🧪 Lab Local File Inclusion</h2>
+            <p>Aplikasi di bawah ini menggunakan parameter file untuk memuat konten. Coba masukkan path file yang berbeda untuk melihat bagaimana LFI bekerja.</p>
+
+            <form id="lfi-form" style="margin-top: 20px;">
+                <div class="form-group">
+                    <label for="file">File yang ingin dimuat:</label>
+                    <select id="file" name="file">
+                        <option value="">-- Pilih file --</option>
+                        {% for filename in file_contents %}
+                        <option value="{{ filename }}">{{ filename }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="custom-path">Atau masukkan path custom:</label>
+                    <input type="text" id="custom-path" name="custom-path">
+                </div>
+                <button type="button" class="btn" id="load-button">Load File</button>
+            </form>
+
+            <div id="result-message"></div>
+
+            <div class="explanation">
+                <h3>🔍 Bagaimana LFI Bekerja?</h3>
+                <p>Aplikasi ini menggunakan kode PHP yang rentan:</p>
+                <div class="query-display">
+<span class="vulnerable-code">❌ Vulnerable Code:</span>
+&lt;?php
+$file = $_GET['file'];
+include($file);
+?&gt;
+
+<span class="vulnerable-code">❌ URL yang dihasilkan:</span>
+http://example.com/page.php?file=INPUT_FILE
+                </div>
+                <p>Input pengguna langsung dimasukkan ke dalam fungsi include() tanpa validasi, memungkinkan penyerang mengakses file sistem.</p>
+            </div>
+        </div>
+
+        <div class="demo-card">
+            <div class="examples-section">
+                <h3>🎯 Contoh Payload LFI</h3>
+                
+                <div class="example-item">
+                    <h4>1. Directory Traversal (Unix/Linux)</h4>
+                    <div class="payload">../../../../etc/passwd</div>
+                    <p><strong>Penjelasan:</strong> Menggunakan "../" untuk naik ke direktori parent dan mengakses file /etc/passwd yang berisi daftar user sistem.</p>
+                </div>
+
+                <div class="example-item">
+                    <h4>2. Windows Directory Traversal</h4>
+                    <div class="payload">..\..\..\..\windows\system32\drivers\etc\hosts</div>
+                    <p><strong>Penjelasan:</strong> Pada sistem Windows, menggunakan "..\" untuk mengakses file hosts yang berisi mapping hostname.</p>
+                </div>
+
+                <div class="example-item">
+                    <h4>3. PHP Wrapper Attack</h4>
+                    <div class="payload">php://filter/convert.base64-encode/resource=config.php</div>
+                    <p><strong>Penjelasan:</strong> Menggunakan PHP wrapper untuk membaca source code file PHP yang biasanya tidak bisa diakses langsung.</p>
+                </div>
+
+                <div class="example-item">
+                    <h4>4. Log Poisoning</h4>
+                    <div class="payload">../../../var/log/apache2/access.log</div>
+                    <p><strong>Penjelasan:</strong> Mengakses log file yang mungkin berisi input pengguna yang bisa dimanipulasi untuk RCE.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-card">
+            <div class="explanation">
+                <h3>📂 Struktur File Sistem (Simulasi)</h3>
+                <div class="file-structure">
+/
+├── etc/
+│   ├── passwd          (Daftar user sistem)
+│   ├── shadow          (Password hash)
+│   └── hosts           (Host mapping)
+├── var/
+│   └── log/
+│       └── apache2/
+│           └── access.log
+├── home/
+│   └── user/
+│       └── documents/
+└── web/
+    ├── index.php
+    ├── config.php      (Database credentials)
+    ├── home.txt
+    ├── about.txt
+    └── contact.txt
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-card">
+            <div class="explanation">
+                <h3>🛡️ Cara Pencegahan LFI</h3>
+                
+                <h4>1. Input Validation & Whitelist</h4>
+                <div class="query-display">
+<span class="vulnerable-code">❌ Vulnerable:</span>
+$file = $_GET['file'];
+include($file);
+
+<span class="secure-code">✅ Secure:</span>
+$allowed_files = ['home.txt', 'about.txt', 'contact.txt'];
+$file = $_GET['file'];
+
+if (in_array($file, $allowed_files)) {
+    include($file);
+} else {
+    die('File tidak diizinkan!');
+}
+                </div>
+
+                <h4>2. Path Sanitization</h4>
+                <div class="query-display">
+<span class="secure-code">✅ Sanitize Input:</span>
+$file = basename($_GET['file']); // Hapus path traversal
+$file = str_replace(['../', '.\\'], '', $file); // Filter traversal
+$safe_path = '/var/www/html/pages/' . $file;
+
+if (file_exists($safe_path) && is_readable($safe_path)) {
+    include($safe_path);
+}
+                </div>
+
+                <h4>3. Disable Dangerous Functions</h4>
+                <div class="query-display">
+<span class="secure-code">✅ PHP.ini Configuration:</span>
+disable_functions = exec,passthru,shell_exec,system,proc_open,popen
+allow_url_include = Off
+allow_url_fopen = Off
+open_basedir = /var/www/html/
+                </div>
+
+                <h4>4. Use Absolute Paths</h4>
+                <div class="query-display">
+<span class="secure-code">✅ Absolute Path:</span>
+$base_dir = '/var/www/html/pages/';
+$file = $_GET['file'];
+$full_path = realpath($base_dir . $file);
+
+// Pastikan masih dalam base directory
+if (strpos($full_path, $base_dir) === 0) {
+    include($full_path);
+}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script id="file-contents-json" type="application/json">
+        {{ file_contents | tojson }}
+    </script>
+
+</body>
+</html>

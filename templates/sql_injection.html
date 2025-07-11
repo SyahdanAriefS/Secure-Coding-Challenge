@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Injection Demo - Security Education</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='sql_injection.css') }}">
+</head>
+<body>
+    <div class="container">
+        <a href="/dashboard" class="back-btn">← Kembali ke Dashboard</a>
+        
+        <div class="header">
+            <h1>💉 SQL Injection Demo</h1>
+            <p>Pelajari bagaimana SQL Injection bekerja dan cara mencegahnya</p>
+        </div>
+
+        <div class="demo-card">
+            <div class="warning-box">
+                <strong>⚠️ Peringatan:</strong> Ini adalah lingkungan edukasi yang aman. 
+                Jangan pernah mencoba teknik ini pada sistem yang tidak Anda miliki!
+            </div>
+
+            <h2>🧪 Lab SQL Injection</h2>
+            <p>Form login di bawah ini rentan terhadap SQL Injection. Coba masukkan payload untuk melihat bagaimana serangan ini bekerja.</p>
+
+            <form method="POST" style="margin-top: 20px;">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" placeholder="Masukkan username atau payload SQL">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="text" id="password" name="password" placeholder="Masukkan password atau payload SQL">
+                </div>
+                
+                <button type="submit" class="btn">Test Login</button>
+            </form>
+
+            {% if message %}
+            <div class="message {% if 'berhasil' in message.lower() %}success{% else %}error{% endif %}">
+                {{ message }}
+            </div>
+            {% endif %}
+
+            <div class="explanation">
+                <h3>🔍 Bagaimana SQL Injection Bekerja?</h3>
+                <p>Aplikasi ini menggunakan query SQL yang rentan:</p>
+                <div class="query-display">
+                    SELECT * FROM users WHERE username = 'INPUT_USER' AND password = 'INPUT_PASSWORD'
+                </div>
+                <p>Input pengguna langsung dimasukkan ke dalam query tanpa validasi, memungkinkan penyerang memanipulasi logic SQL.</p>
+            </div>
+        </div>
+
+        <div class="demo-card">
+            <div class="examples-section">
+                <h3>🎯 Contoh Payload SQL Injection</h3>
+                
+                <div class="example-item">
+                    <h4>1. Authentication Bypass</h4>
+                    <p><strong>Username:</strong></p>
+                    <div class="payload">admin' OR '1'='1' --</div>
+                    <p><strong>Password:</strong> (kosongkan atau isi apa saja)</p>
+                    <p><strong>Penjelasan:</strong> Payload ini akan membuat kondisi OR yang selalu benar, melewati autentikasi.</p>
+                </div>
+
+                <div class="example-item">
+                    <h4>2. Union-based Injection</h4>
+                    <p><strong>Username:</strong></p>
+                    <div class="payload">admin' UNION SELECT 'hacker','password' --</div>
+                    <p><strong>Password:</strong> password</p>
+                    <p><strong>Penjelasan:</strong> Menggunakan UNION untuk menggabungkan hasil query dengan data yang diinginkan penyerang.</p>
+                </div>
+
+                <div class="example-item">
+                    <h4>3. Comment-based Bypass</h4>
+                    <p><strong>Username:</strong> admin</p>
+                    <p><strong>Password:</strong></p>
+                    <div class="payload">' OR '1'='1' /*</div>
+                    <p><strong>Penjelasan:</strong> Menggunakan komentar SQL untuk mengabaikan bagian query setelah payload.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-card">
+            <div class="explanation">
+                <h3>🛡️ Cara Pencegahan SQL Injection</h3>
+                
+                <h4>1. Prepared Statements (Parameterized Queries)</h4>
+                <div class="query-display">
+❌ Vulnerable:
+query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'"
+
+✅ Secure:
+query = "SELECT * FROM users WHERE username = ? AND password = ?"
+cursor.execute(query, (username, password))
+                </div>
+
+                <h4>2. Input Validation</h4>
+                <div class="query-display">
+✅ Whitelist allowed characters
+✅ Limit input length
+✅ Use regex validation
+✅ Escape special characters
+                </div>
+
+                <h4>3. Least Privilege Principle</h4>
+                <div class="query-display">
+✅ Database user dengan permission minimal
+✅ Tidak menggunakan admin/root account
+✅ Batasi akses ke tabel sensitif
+                </div>
+
+                <h4>4. Error Handling</h4>
+                <div class="query-display">
+✅ Jangan tampilkan error database detail
+✅ Log error untuk monitoring
+✅ Return generic error message
+                </div>
+            </div>
+        </div>

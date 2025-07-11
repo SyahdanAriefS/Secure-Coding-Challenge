@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Education Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</head>
+<body>
+    <a href="{{ url_for('logout') }}" class="logout-btn">🚪 Logout</a>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🔒 Security Education Dashboard</h1>
+            <p>Pelajari kerentanan web umum dan cara mencegahnya untuk pengembangan aplikasi yang aman</p>
+        </div>
+
+        {% if user %}
+        <div class="user-welcome">
+            <strong>Selamat datang, {{ user }}!</strong> Mulai eksplorasi kerentanan web untuk pembelajaran secure coding.
+        </div>
+        {% endif %}
+
+        <div class="stats-section">
+            <h2 style="color: #2c3e50; margin-bottom: 20px;">📊 Statistik Keamanan Web</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number">43%</span>
+                    <div class="stat-label">Serangan pada Aplikasi Web</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">94%</span>
+                    <div class="stat-label">Aplikasi Memiliki Kerentanan</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">$4.45M</span>
+                    <div class="stat-label">Rata-rata Biaya Data Breach</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">287 hari</span>
+                    <div class="stat-label">Waktu Deteksi & Containment</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ctf-section">
+            <h2 style="color: #2c3e50; margin-bottom: 20px;">🏆 Challenge & Assessment</h2>
+            <div class="ctf-card">
+                <div class="ctf-header">
+                    <span class="ctf-icon">🎯</span>
+                    <div class="ctf-info">
+                        <h3 class="ctf-title">CTF Security Quiz</h3>
+                        <span class="difficulty-badge">Multi-Level</span>
+                    </div>
+                </div>
+                <p class="ctf-description">
+                    Uji pemahaman Anda tentang kerentanan web security melalui 20 soal CTF yang mencakup 
+                    SQL Injection, XSS, LFI, Command Injection, dan IDOR. Tantangan yang dirancang untuk 
+                    menguji skill penetration testing dan secure coding Anda.
+                </p>
+                
+                <div class="ctf-features">
+                    <div class="feature-item">
+                        <span class="feature-icon">💉</span>
+                        <span>SQL Injection</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🧪</span>
+                        <span>XSS Attack</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">📂</span>
+                        <span>File Inclusion</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">⚡</span>
+                        <span>Command Injection</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🔐</span>
+                        <span>Access Control</span>
+                    </div>
+                </div>
+
+                <div class="ctf-stats">
+                    <div class="ctf-stat">
+                        <span class="stat-value">20</span>
+                        <span class="stat-label">Soal</span>
+                    </div>
+                    <div class="ctf-stat">
+                        <span class="stat-value" id="countdown-timer">{{ countdown }}</span>
+                        <span class="stat-label">Countdown</span>
+                    </div>
+                    <div class="ctf-stat">
+                        <span class="stat-value">3</span>
+                        <span class="stat-label">Level</span>
+                    </div>
+                </div>
+
+                <div class="ctf-actions">
+                    <a href="{{ url_for('quiz') }}" class="ctf-btn primary {% if not allow_start %}disabled{% endif %}">🚀 Mulai Quiz CTF</a>
+                    <a href="{{ url_for('quiz') }}?tab=scoreboard" class="ctf-btn secondary">🏆 Lihat Leaderboard</a>
+                </div>
+            </div>
+        </div>
+
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="vulnerability-card sql">
+                <span class="card-icon">💉</span>
+                <h3 class="card-title">SQL Injection</h3>
+                <span class="severity high">TINGGI</span>
+                <p class="card-description">
+                    Kerentanan yang memungkinkan penyerang memasukkan kode SQL berbahaya ke dalam query database, 
+                    berpotensi mengakses atau memodifikasi data sensitif.
+                </p>
+                
+                <div class="demo-section">
+                    <a href="{{ url_for('sql_injection') }}" class="demo-btn">🔬 Demo Live</a>
+                </div>
+
+                <div class="prevention-tips">
+                    <h4>🛡️ Pencegahan Utama:</h4>
+                    <ul>
+                        <li>Gunakan Prepared Statements</li>
+                        <li>Validasi input dengan whitelist</li>
+                        <li>Escape karakter khusus</li>
+                        <li>Implementasi least privilege</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="vulnerability-card xss">
+                <span class="card-icon">🧪</span>
+                <h3 class="card-title">Cross-Site Scripting (XSS)</h3>
+                <span class="severity high">TINGGI</span>
+                <p class="card-description">
+                    Serangan dimana script berbahaya diinjeksi ke dalam website yang kemudian dieksekusi 
+                    oleh browser pengguna lain, dapat mencuri data atau session.
+                </p>
+                
+                <div class="demo-section">
+                    <a href="{{ url_for('xss') }}" class="demo-btn">🔬 Demo Live</a>
+                </div>
+
+                <div class="prevention-tips">
+                    <h4>🛡️ Pencegahan Utama:</h4>
+                    <ul>
+                        <li>Sanitasi dan encoding output</li>
+                        <li>Content Security Policy (CSP)</li>
+                        <li>Validasi input yang ketat</li>
+                        <li>Gunakan framework yang aman</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="vulnerability-card lfi">
+                <span class="card-icon">📂</span>
+                <h3 class="card-title">Local File Inclusion (LFI)</h3>
+                <span class="severity medium">SEDANG</span>
+                <p class="card-description">
+                    Kerentanan yang memungkinkan penyerang mengakses file lokal pada server melalui 
+                    manipulasi parameter yang tidak divalidasi dengan benar.
+                </p>
+                
+                <div class="demo-section">
+                    <a href="{{ url_for('lfi') }}" class="demo-btn">🔬 Demo Live</a>
+                </div>
+
+                <div class="prevention-tips">
+                    <h4>🛡️ Pencegahan Utama:</h4>
+                    <ul>
+                        <li>Whitelist file yang diizinkan</li>
+                        <li>Validasi path dan extension</li>
+                        <li>Hindari user input untuk file path</li>
+                        <li>Implementasi proper access control</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

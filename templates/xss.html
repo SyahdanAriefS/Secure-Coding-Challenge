@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XSS Demo - Security Education</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='js/xss.css') }}">
+    <script src="/static/xss.js"></script>
+</head>
+<body>
+    <div class="container">
+        <a href="/dashboard" class="back-btn">← Kembali ke Dashboard</a>
+        
+        <div class="header">
+            <h1>⚡ Cross-Site Scripting (XSS) Demo</h1>
+            <p>Pelajari bagaimana XSS bekerja dan cara mencegahnya</p>
+        </div>
+
+        <div class="demo-card">
+            <div class="warning-box">
+                <strong>⚠️ Peringatan:</strong> Ini adalah lingkungan edukasi yang aman. 
+                Jangan pernah mencoba teknik ini pada sistem yang tidak Anda miliki!
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" data-target="reflected">Reflected XSS</button>
+                <button class="tab" data-target="stored">Stored XSS</button>
+                <button class="tab" data-target="dom">DOM-based XSS</button>
+            </div>
+
+            <div id="reflected" class="tab-content active">
+                <h2>🔄 Reflected XSS Demo</h2>
+                <p>Reflected XSS terjadi ketika input pengguna langsung dikembalikan ke halaman tanpa sanitasi.</p>
+
+                <form onsubmit="return false;">
+                    <div class="form-group">
+                        <label for="search-input">Cari sesuatu:</label>
+                        <input type="text" id="search-input" placeholder="Masukkan kata kunci pencarian">
+                    </div>
+                    <button type="button" class="btn" id="search-btn">Search</button>
+                    <button type="button" class="btn btn-secondary" id="safe-search-btn">Safe Search</button>
+                </form>
+
+                <div id="search-results" class="output-box"></div>
+
+                <div class="examples-section">
+                    <h3>🎯 Contoh Payload Reflected XSS</h3>
+                    {% for item in payloads.reflected %}
+                    <div class="example-item">
+                        <h4>{{ loop.index }}. {{ item.title }}</h4>
+                        <div class="payload">{{ item.payload|e }}</div>
+                        <button class="btn test-reflected-payload" data-payload="{{ item.payload|e }}">
+                            Test Payload
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div id="stored" class="tab-content">
+                <h2>💾 Stored XSS Demo</h2>
+                <p>Stored XSS terjadi ketika payload disimpan di database dan dieksekusi setiap kali halaman dimuat.</p>
+
+                <form onsubmit="return false;">
+                    <div class="form-group">
+                        <label for="comment-name">Nama:</label>
+                        <input type="text" id="comment-name" placeholder="Masukkan nama Anda">
+                    </div>
+                    <div class="form-group">
+                        <label for="comment-text">Komentar:</label>
+                        <textarea id="comment-text" placeholder="Tulis komentar Anda..."></textarea>
+                    </div>
+                    <button type="button" class="btn" id="vuln-comment-btn">Post Comment (Vulnerable)</button>
+                    <button type="button" class="btn btn-secondary" id="safe-comment-btn">Post Comment (Safe)</button>
+                    <button type="button" class="btn" id="clear-comments-btn" style="background: #6c757d;">Clear Comments</button>
+                </form>
+
+                <div class="xss-demo-area">
+                    <h4>💬 Comments Section:</h4>
+                    <div id="comments-area">
+                        <div class="comment-box">
+                            <div class="comment-author">Admin</div>
+                            <div class="comment-content">Selamat datang di sistem komentar kami!</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="examples-section">
+                    <h3>🎯 Contoh Payload Stored XSS</h3>
+                    {% for item in payloads.stored %}
+                    <div class="example-item">
+                        <h4>{{ loop.index }}. {{ item.title }}</h4>
+                        <div class="payload">{{ item.comment|e }}</div>
+                        <button class="btn test-stored-payload" data-payload="{{ item.payload|e }}">
+                            Test Payload
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div id="dom" class="tab-content">
+                <h2>🌐 DOM-based XSS Demo</h2>
+                <p>DOM-based XSS terjadi ketika JavaScript memodifikasi DOM berdasarkan input pengguna tanpa validasi.</p>
+
+                <div class="form-group">
+                    <label>URL dengan parameter:</label>
+                    <div class="url-display" id="current-url">https://example.com/page.html#name=Guest</div>
+                </div>
+
+                <form onsubmit="return false;">
+                    <div class="form-group">
+                        <label for="url-param">URL Parameter (setelah #):</label>
+                        <input type="text" id="url-param" placeholder="name=Guest" value="name=Guest">
+                    </div>
+                    <button type="button" class="btn" id="dom-btn">Update DOM (Vulnerable)</button>
+                    <button type="button" class="btn btn-secondary" onclick="updateDOMSafe()">Update DOM (Safe)</button>
+                </form>
+
+                <div class="xss-demo-area">
+                    <h4>🎭 Welcome Message (DOM Output):</h4>
+                    <div id="welcome-message" style="font-size: 18px; padding: 20px; background: white; border-radius: 8px;">
+                        Welcome, Guest!
+                    </div>
+                </div>
+
+                <div class="examples-section">
+                    <h3>🎯 Contoh Payload DOM-based XSS</h3>
+                    {% for item in payloads.dom %}
+                    <div class="example-item">
+                        <h4>{{ loop.index }}. {{ item.title }}</h4>
+                        <div class="payload">{{ item.hash|e }}</div>
+                        <button class="btn test-dom-payload" data-hash="{{ item.hash }}">
+                            Test Payload
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-card">
+            <div class="explanation">
+                <h3>🔍 Bagaimana XSS Bekerja?</h3>
+                
+                <h4>Reflected XSS</h4>
+                <div class="query-display">
+<span class="vulnerable-code">❌ Vulnerable Code:</span>
+&lt;?php
+echo "Search results for: " . $_GET['q'];
+?&gt;
+
+<span class="vulnerable-code">❌ URL yang dihasilkan:</span>
+https://example.com/search.php?q=&lt;script&gt;alert('XSS')&lt;/script&gt;
+                </div>
+
+                <h4>Stored XSS</h4>
+                <div class="query-display">
+<span class="vulnerable-code">❌ Vulnerable Code:</span>
+&lt;?php
+$comment = $_POST['comment'];
+// Simpan ke database tanpa sanitasi
+$query = "INSERT INTO comments (content) VALUES ('$comment')";
+
+// Tampilkan komentar
+echo "&lt;div&gt;" . $row['content'] . "&lt;/div&gt;";
+?&gt;
+                </div>
+
+                <h4>DOM-based XSS</h4>
+                <div class="query-display">
+<span class="vulnerable-code">❌ Vulnerable JavaScript:</span>
+var name = location.hash.substring(1);
+document.getElementById('welcome').innerHTML = "Hello " + name;
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-card">
+            <div class="explanation">
+                <h3>🛡️ Cara Pencegahan XSS</h3>
+                
+                <h4>1. Input Validation & Output Encoding</h4>
+                <div class="query-display">
+<span class="vulnerable-code">❌ Vulnerable:</span>
+echo $_GET['input'];
+
+<span class="secure-code">✅ Secure:</span>
+echo htmlspecialchars($_GET['input'], ENT_QUOTES, 'UTF-8');
+
+// JavaScript
+<span class="vulnerable-code">❌ Vulnerable:</span>
+element.innerHTML = userInput;
+
+<span class="secure-code">✅ Secure:</span>
+element.textContent = userInput;
+                </div>
+
+                <h4>2. Content Security Policy (CSP)</h4>
+                <div class="query-display">
+<span class="secure-code">✅ CSP Header:</span>
+Content-Security-Policy: default-src 'self'; 
+                         script-src 'self'; 
+                         style-src 'self' 'unsafe-inline';
+                         img-src 'self' data:;
+                </div>
+
+                <h4>3. HTTP-Only Cookies</h4>
+                <div class="query-display">
+<span class="secure-code">✅ Secure Cookie:</span>
+setcookie("session", $value, [
+    'httponly' => true,
+    'secure' => true,
+    'samesite' => 'Strict'
+]);
+                </div>
+
+                <h4>4. Framework Protection</h4>
+                <div class="query-display">
+<span class="secure-code">✅ React (Auto-escaping):</span>
+const message = "&lt;script&gt;alert('XSS')&lt;/script&gt;";
+return &lt;div&gt;{message}&lt;/div&gt;; // Otomatis di-escape
+
+<span class="secure-code">✅ Laravel Blade:</span>
+{% raw %}
+{{ $userInput }} // Otomatis di-escape
+{!! $trustedInput !!} // Raw output (hati-hati!)
+{% endraw %}
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-card">
+            <div class="explanation">
+                <h3>⚡ Dampak Serangan XSS</h3>
+                
+                <div class="example-item">
+                    <h4>1. Session Hijacking</h4>
+                    <p>Penyerang dapat mencuri cookie session dan mengambil alih akun pengguna.</p>
+                    <div class="cookie-display" id="cookie-demo">
+                        Document.cookie: sessionid=abc123; userid=12345; role=admin
+                    </div>
+                </div>
+
+                <div class="example-item">
+                    <h4>2. Phishing</h4>
+                    <p>Membuat form palsu untuk mencuri kredensial pengguna.</p>
+                </div>
+
+                <div class="example-item">
+                    <h4>3. Malware Distribution</h4>
+                    <p>Mengarahkan pengguna ke situs berbahaya atau mengunduh malware.</p>
+                </div>
+
+                <div class="example-item">
+                    <h4>4. Defacement</h4>
+                    <p>Mengubah tampilan website untuk merusak reputasi.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
